@@ -1,6 +1,10 @@
-{:deps {org.clojure/clojurescript {:mvn/version "1.10.439"}
+{:paths ["src" "target" "resources"]
+ :deps {org.clojure/clojurescript {:mvn/version "1.10.439"}
         reagent/reagent {:mvn/version "0.8.1"}
-        re-frame {:mvn/version "0.10.6"}}
- :aliases
- {:outdated {:extra-deps {olical/depot {:mvn/version "1.7.0"}}
-             :main-opts ["-m" "depot.outdated.main"]}}}
+        re-frame {:mvn/version "0.10.6"}
+
+        com.bhauman/figwheel-main {:mvn/version "0.2.0"}
+        com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}}
+ :aliases {:dev {:main-opts ["-m" "figwheel.main" "-b" "dev" "-r"]}
+           :outdated {:extra-deps {olical/depot {:mvn/version "1.7.0"}}
+                      :main-opts ["-m" "depot.outdated.main"]}}}

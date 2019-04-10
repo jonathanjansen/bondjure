@@ -25,3 +25,4 @@ run clj -R:outdated
 # Thoughts
 -I am using 1.9 and setting the project up without templates or scaffolding to keep noise to a minimum
 -Added olical/depot cause its not fun manual checking if deps are up to date.
+-Added figwheel as I have a better workflow with it
