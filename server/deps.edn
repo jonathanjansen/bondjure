@@ -1,0 +1,26 @@
+{:paths ["src" "resources" "target"]
+ :deps {io.pedestal/pedestal.route {:mvn/version "0.5.5"}
+        io.pedestal/pedestal.service {:mvn/version "0.5.5"}
+        io.pedestal/pedestal.jetty {:mvn/version "0.5.5"}
+        org.clojure/data.json {:mvn/version "0.2.6"}
+        selmer/selmer {:mvn/version "1.12.5"}
+
+        web {:local/root "../web"}
+
+        org.slf4j/slf4j-simple {:mvn/version "1.7.26"}
+
+        cider/piggieback {:mvn/version "0.4.0"}
+        com.bhauman/figwheel-main {:mvn/version "0.2.0"}
+        figwheel-sidecar        {:mvn/version "0.5.14"
+                                 :exclusions  [com.google.javascript/closure-compiler]}
+
+          ;; CIDER compatible nREPL
+        cider/cider-nrepl       {:mvn/version "0.18.0"}
+        org.clojure/tools.nrepl {:mvn/version "0.2.12"}
+        refactor-nrepl          {:mvn/version "2.4.0"}
+        }
+
+ :aliases {:dev {:main-opts ["-m" "figwheel.main" "-b" "dev" "-r"]}
+           :repl {:extra-deps {}}
+           :outdated {:extra-deps {olical/depot {:mvn/version "1.7.0"}}
+                      :main-opts ["-m" "depot.outdated.main"]}}}
