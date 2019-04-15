@@ -75,28 +75,35 @@
      [:div.card
       [:div.card-header (str (result :person) "'s bond calculation")]
       [:div.card-body {:id id}
-       [:dl
-        [:dt "Purchase price"]
-        [:dd (result :price)]
-        [:dt "Deposit paid"]
-        [:dd (result :deposit)]
-        [:dt "Bond term in years"]
-        [:dd (result :interest)]
-        [:dt "Fixed interest rate"]]]
-      [:div.card-header "Repayment Shedule"]
-      [:table.table
-       [:thead
-        [:tr
-         [:th "Year"]
-         [:th "Interest %"]
-         [:th "Capital %"]]]
-       [:tbody
-        (for [sched (result :repayment-schedule)]
-          [:tr
-           [:td (sched :year)]
-           [:td (sched :interest)]
-           [:td (* (- 1 (/ (sched :interest) 100)) 100)]])]]
-      [chart result]])])
+       [:div.row
+        [:div.col-sm
+         [:dl
+          [:dt "Purchase price"]
+          [:dd (result :price)]
+          [:dt "Deposit paid"]
+          [:dd (result :deposit)]
+          [:dt "Bond term in years"]
+          [:dd (result :term)]
+          [:dt "Fixed interest rate"]
+          [:dd (result :interest)]]]
+         [:div.col-sm
+          [:dl
+           [:dt "Repayment"]
+           [:dd (result :repayment)]]]]]
+         [:div.card-header "Repayment Shedule"]
+         [:table.table
+          [:thead
+           [:tr
+            [:th "Year"]
+            [:th "Interest %"]
+            [:th "Capital %"]]]
+          [:tbody
+           (for [sched (result :repayment-schedule)]
+             [:tr
+              [:td (sched :year)]
+              [:td (sched :interest)]
+              [:td (* (- 1 (/ (sched :interest) 100)) 100)]])]]
+         [chart result]])])
 
 (defn main-view []
   (let [results @(subscribe [:results])]

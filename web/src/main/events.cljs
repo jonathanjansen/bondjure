@@ -56,4 +56,5 @@
                (assoc (db :results) 
                       db-id (assoc values
                                    :id db-id
+                                   :repayment repayment
                                    :repayment-schedule (amort price interest term repayment)))))))
