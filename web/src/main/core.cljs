@@ -9,4 +9,3 @@
 (clear-subscription-cache!)
 (reagent/render [views/main-view]
                 (.getElementById js/document "app"))
-

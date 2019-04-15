@@ -6,4 +6,3 @@
  :results
  (fn [db _]
    (:results db)))
-

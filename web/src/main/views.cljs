@@ -38,20 +38,18 @@
      [:div.form-group
       [:label {:for "fixed_interest"} "Fixed interest rate"]
       [:input#fixed_interest.form-control
-       {:type "number"
+       {:type "text"
         :on-change #(swap! values assoc :interest (-> % .-target .-value))
         :placeholder "Fixed Interest Rate"}]]
      [:div.form-group
       [:button.btn.btn-primary.btn-lg.btn-block "Calculate"]]]))
-
-
 
 (defn chart-fn [result]
   (fn [component]
     (let [context (.getContext (.getElementById js/document (str "chart-" (result :id))) "2d")
           chart-data {:type "bar"
                       :data {:labels (->> result :repayment-schedule (map :year))
-                             :datasets [{:data (->> result :repayment-schedule (map :intrest))
+                             :datasets [{:data (->> result :repayment-schedule (map :interest))
                                          :label "Interest %"
                                          :backgroundColor "#0DC4A3"}
                                         {:data (->> result :repayment-schedule (map :capital))
@@ -67,9 +65,7 @@
    {:component-did-mount (chart-fn result)
     :display-name        "chartjs-component"
     :reagent-render      (fn []
-                           [:canvas {:id (str "chart-" (result :id)) :width "700" :height "380"}])}))
-
-
+                           [:canvas {:id (str "chart-" (result :id)) :width "300" :height "100"}])}))
 
 (defn result-view [results]
   [:div
@@ -83,9 +79,9 @@
         [:dt "Purchase price"]
         [:dd (result :price)]
         [:dt "Deposit paid"]
-        [:dd (result :price)]
+        [:dd (result :deposit)]
         [:dt "Bond term in years"]
-        [:dd (result :price)]
+        [:dd (result :interest)]
         [:dt "Fixed interest rate"]]]
       [:div.card-header "Repayment Shedule"]
       [:table.table
@@ -95,9 +91,11 @@
          [:th "Interest %"]
          [:th "Capital %"]]]
        [:tbody
-        [:tr
-         (for [sched (result :repayment-schedule)]
-           [:td (sched :year)])]]]
+        (for [sched (result :repayment-schedule)]
+          [:tr
+           [:td (sched :year)]
+           [:td (sched :interest)]
+           [:td (* (- 1 (/ (sched :interest) 100)) 100)]])]]
       [chart result]])])
 
 (defn main-view []

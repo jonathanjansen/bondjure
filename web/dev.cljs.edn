@@ -1,1 +1,3 @@
-{:main main.core}
+{:main main.core
+ :auto-testing true
+ :optimizations :none}
