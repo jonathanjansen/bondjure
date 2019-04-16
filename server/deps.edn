@@ -5,6 +5,7 @@
         org.clojure/data.json {:mvn/version "0.2.6"}
         selmer/selmer {:mvn/version "1.12.5"}
 
+        cljs-ajax {:mvn/version "0.8.0"}
         web {:local/root "../web"}
 
         org.slf4j/slf4j-simple {:mvn/version "1.7.26"}

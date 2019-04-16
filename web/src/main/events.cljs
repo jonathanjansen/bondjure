@@ -1,14 +1,8 @@
 (ns main.events
-  (:require [re-frame.core :refer [reg-event-db reg-event-fx]]))
+  (:require [ajax.core :refer [GET POST]]
+            [re-frame.core :refer [reg-event-db reg-event-fx]]))
 
-(def default-db {:results {1 {:person "Jonathan Jansen"
-                              :price 1000000
-                              :rate 10
-                              :deposit 10000
-                              :term 20
-                              :repayment-schedule [{:year 1 :interest 1 :capital 99}
-                                                   {:year 2 :interest 2 :capital 98}
-                                                   {:year 3 :interest 5 :capital 95}]}}})
+(def default-db {:results {}})
 
 (defn repayment [price rate term deposit]
   (let [monthly-intrest (/ rate 100 12)
@@ -38,11 +32,20 @@
                  cap
                  (conj sch {:year period :interest interest-perc :capital capital-perc}))))))
 
+(reg-event-db
+ :set-results
+ (fn [db [_ results]]
+   (assoc db :results (into {}
+                            (map
+                             #(assoc {} (% :id) %)
+                             results )))))
 
 (reg-event-fx
  ::initialize-db
  (fn [{:keys [db]} _]
-   {:db default-db}))
+   {:http {:method GET
+           :url "/api/bond-calcs"
+           :success-event [:set-results]}}))
 
 (re-frame.core/reg-event-db
  :calculate
