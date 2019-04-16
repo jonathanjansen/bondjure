@@ -47,17 +47,36 @@
            :url "/api/bond-calcs"
            :success-event [:set-results]}}))
 
-(re-frame.core/reg-event-db
+(reg-event-db
  :calculate
  (fn [db [_ values]]
-   (let [db-id (gensym)
-         price (values :price)
+   (let  [price (values :price)
          interest (values :interest)
          term (values :term)
          repayment (repayment price interest term (values :deposit))]
-     (assoc-in db [:results]
-               (assoc (db :results) 
-                      db-id (assoc values
-                                   :id db-id
-                                   :repayment repayment
-                                   :repayment-schedule (amort price interest term repayment)))))))
+     (assoc db :result (assoc values
+                              :repayment repayment
+                              :repayment-schedule (amort price interest term repayment))))))
+
+
+(reg-event-db
+ :set-result
+ (fn [db [_ result]]
+   {:results
+    (assoc (db :results)
+           (result :id)
+           result)}
+    ))
+
+(reg-event-fx
+ :save-result
+ (fn [_ [_ result]]
+   {:http {:method POST
+           :url "/api/bond-calcs"
+           :ajax-map {:params result}
+           :success-event [:set-result]}}))
+
+(reg-event-db
+ :update-person
+ (fn [db [_ person]]
+   (update-in db [:result] assoc :person person)))

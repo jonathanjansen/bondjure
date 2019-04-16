@@ -30,7 +30,8 @@
   (stop-dev)
   (start-dev))
 
+(defn -main []
+  (start-dev))
+
 (comment
   (restart))
-
-(start-dev)

@@ -117,3 +117,5 @@
 ;;; Build script entrypoint.
 
 (task *command-line-args*)
+(require 'main.core)
+(main.core/start-dev)

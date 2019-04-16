@@ -6,3 +6,8 @@
  :results
  (fn [db _]
    (:results db)))
+
+(re-frame/reg-sub
+ :result
+ (fn [db _]
+   (:result db)))

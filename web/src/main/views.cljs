@@ -8,15 +8,9 @@
   (.preventDefault event)
   (dispatch [:calculate @values]))
 
-(defn form-view []
+(defn calc-form []
   (reagent/with-let [values (reagent/atom nil)]
     [:form {:on-submit #(calculate % values)}
-     [:div.form-group
-      [:label {:for "person"} "Your Name"]
-      [:input#purchase_price.form-control
-       {:type "text"
-        :on-change #(swap! values assoc :person (-> % .-target .-value))
-        :placeholder "Your Name"}]]
      [:div.form-group
       [:label {:for "purchase_price"} "Purchase price"]
       [:input#purchase_price.form-control
@@ -67,47 +61,77 @@
     :reagent-render      (fn []
                            [:canvas {:id (str "chart-" (result :id)) :width "300" :height "100"}])}))
 
-(defn result-view [results]
+(defn save-result [event result]
+  (.preventDefault event)
+  (dispatch [:save-result result]))
+
+(defn result-view [result]
+  [:div.card-body {:id (result :id)}
+   [:div.row
+    [:div.col-sm
+     [:dl
+      [:dt "Purchase price"]
+      [:dd (result :price)]
+      [:dt "Deposit paid"]
+      [:dd (result :deposit)]
+      [:dt "Bond term in years"]
+      [:dd (result :term)]
+      [:dt "Fixed interest rate"]
+      [:dd (result :interest)]]]
+    [:div.col-sm
+     [:dl
+      [:dt "Repayment"]
+      [:dd (result :repayment)]]]]])
+
+(defn schedule [result]
+  [:div.card-header "Repayment Schedule"]
+  [:table.table
+   [:thead
+    [:tr
+     [:th "Year"]
+     [:th "Interest %"]
+     [:th "Capital %"]]]
+   [:tbody
+    (for [sched (result :repayment-schedule)]
+      [:tr
+       [:td (sched :year)]
+       [:td (sched :interest)]
+       [:td (* (- 1 (/ (sched :interest) 100)) 100)]])]]
+  [chart result])
+
+(defn result-form []
+  (let [result @(subscribe [:result])]
+    (if (some? result)
+      [:div.card
+       [:div.card-header "Your bond calculation"]
+       (result-view result)
+       [:div.card-footer
+       [:form {:on-submit #(save-result % result)}
+        [:div.form-group
+         [:label {:for "person"} "Your Name"]
+         [:input#purchase_price.form-control
+          {:type "text"
+           :on-change  #(dispatch [:update-person (-> % .-target .-value)])
+           :placeholder "Your Name"}]]
+        [:div.form-group
+         [:div.form-group
+          [:button.btn.btn-primary.btn-lg.btn-block "Save"]]]]
+        (schedule result)]])))
+
+(defn result-history [results]
   [:div
    [:h2 "Prev results"]
-
    (for [[id result] results]
      [:div.card
       [:div.card-header (str (result :person) "'s bond calculation")]
-      [:div.card-body {:id id}
-       [:div.row
-        [:div.col-sm
-         [:dl
-          [:dt "Purchase price"]
-          [:dd (result :price)]
-          [:dt "Deposit paid"]
-          [:dd (result :deposit)]
-          [:dt "Bond term in years"]
-          [:dd (result :term)]
-          [:dt "Fixed interest rate"]
-          [:dd (result :interest)]]]
-         [:div.col-sm
-          [:dl
-           [:dt "Repayment"]
-           [:dd (result :repayment)]]]]]
-         [:div.card-header "Repayment Shedule"]
-         [:table.table
-          [:thead
-           [:tr
-            [:th "Year"]
-            [:th "Interest %"]
-            [:th "Capital %"]]]
-          [:tbody
-           (for [sched (result :repayment-schedule)]
-             [:tr
-              [:td (sched :year)]
-              [:td (sched :interest)]
-              [:td (* (- 1 (/ (sched :interest) 100)) 100)]])]]
-         [chart result]])])
+      (result-view result)
+      (schedule result)]
+      )])
 
 (defn main-view []
   (let [results @(subscribe [:results])]
     [:div.container
      [:h1 "Bondjure"]
-     (form-view)
-     (result-view results)]))
+     (calc-form)
+     (result-form)
+     (result-history results)]))
