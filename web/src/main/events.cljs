@@ -1,14 +1,8 @@
 (ns main.events
-  (:require [re-frame.core :refer [reg-event-db reg-event-fx]]))
+  (:require [ajax.core :refer [GET POST]]
+            [re-frame.core :refer [reg-event-db reg-event-fx]]))
 
-(def default-db {:results {1 {:person "Jonathan Jansen"
-                              :price 1000000
-                              :rate 10
-                              :deposit 10000
-                              :term 20
-                              :repayment-schedule [{:year 1 :interest 1 :capital 99}
-                                                   {:year 2 :interest 2 :capital 98}
-                                                   {:year 3 :interest 5 :capital 95}]}}})
+(def default-db {:results {}})
 
 (defn repayment [price rate term deposit]
   (let [monthly-intrest (/ rate 100 12)
@@ -38,23 +32,51 @@
                  cap
                  (conj sch {:year period :interest interest-perc :capital capital-perc}))))))
 
+(reg-event-db
+ :set-results
+ (fn [db [_ results]]
+   (assoc db :results (into {}
+                            (map
+                             #(assoc {} (% :id) %)
+                             results )))))
 
 (reg-event-fx
  ::initialize-db
  (fn [{:keys [db]} _]
-   {:db default-db}))
+   {:http {:method GET
+           :url "/api/bond-calcs"
+           :success-event [:set-results]}}))
 
-(re-frame.core/reg-event-db
+(reg-event-db
  :calculate
  (fn [db [_ values]]
-   (let [db-id (gensym)
-         price (values :price)
+   (let  [price (values :price)
          interest (values :interest)
          term (values :term)
          repayment (repayment price interest term (values :deposit))]
-     (assoc-in db [:results]
-               (assoc (db :results) 
-                      db-id (assoc values
-                                   :id db-id
-                                   :repayment repayment
-                                   :repayment-schedule (amort price interest term repayment)))))))
+     (assoc db :result (assoc values
+                              :repayment repayment
+                              :repayment-schedule (amort price interest term repayment))))))
+
+
+(reg-event-db
+ :set-result
+ (fn [db [_ result]]
+   {:results
+    (assoc (db :results)
+           (result :id)
+           result)}
+    ))
+
+(reg-event-fx
+ :save-result
+ (fn [_ [_ result]]
+   {:http {:method POST
+           :url "/api/bond-calcs"
+           :ajax-map {:params result}
+           :success-event [:set-result]}}))
+
+(reg-event-db
+ :update-person
+ (fn [db [_ person]]
+   (update-in db [:result] assoc :person person)))

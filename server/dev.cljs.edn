@@ -1,3 +1,4 @@
+^{:watch-dirs ["src"]}
 {:main main.core
  :auto-testing true
  :optimizations :none}
